@@ -6,7 +6,6 @@ import java.util.List;
 
 public class TransverseLinePatternHandle implements BaseNoiseHandle{
 
-    @Override
     public BufferedImage removeNoise(BufferedImage bi) {
         // TODO Auto-generated method stub
         List<Integer> noiseList = getNoiseLines(bi);
@@ -95,13 +94,11 @@ public class TransverseLinePatternHandle implements BaseNoiseHandle{
         return noiseList;
     }
 
-    @Override
     public void setTransverseNoiseList(List<Integer> transverseNoiseList) {
         // TODO Auto-generated method stub
         
     }
 
-    @Override
     public void setVerticalNoiseList(List<Integer> verticalNoiseList) {
         // TODO Auto-generated method stub
         

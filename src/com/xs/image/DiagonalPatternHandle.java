@@ -1,15 +1,11 @@
 package com.xs.image;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DiagonalPatternHandle implements BaseNoiseHandle {
     
 
-    @Override
     public BufferedImage removeNoise(BufferedImage bi) {
         // TODO Auto-generated method stub
             for (int h = 0; h < bi.getHeight(); ++h) {
@@ -90,19 +86,16 @@ public class DiagonalPatternHandle implements BaseNoiseHandle {
         return bi;
     }
 
-    @Override
     public List<Integer> getNoiseLines(BufferedImage bi) {
         // TODO Auto-generated method stub
         return null;
     }
 
-    @Override
     public void setTransverseNoiseList(List<Integer> transverseNoiseList) {
         // TODO Auto-generated method stub
         
     }
 
-    @Override
     public void setVerticalNoiseList(List<Integer> verticalNoiseList) {
         // TODO Auto-generated method stub
         

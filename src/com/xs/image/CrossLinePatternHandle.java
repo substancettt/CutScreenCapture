@@ -7,7 +7,6 @@ import java.util.List;
 public class CrossLinePatternHandle implements BaseNoiseHandle {
     private List<Integer> transverseNoiseList = new ArrayList<Integer>();
     private List<Integer> verticalNoiseList = new ArrayList<Integer>();
-    @Override
     public BufferedImage removeNoise(BufferedImage bi) {
         // TODO Auto-generated method stub
         for(int h: transverseNoiseList){
@@ -131,7 +130,6 @@ public class CrossLinePatternHandle implements BaseNoiseHandle {
         return bi;
     }
 
-    @Override
     public List<Integer> getNoiseLines(BufferedImage bi) {
         // TODO Auto-generated method stub
         return null;

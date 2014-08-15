@@ -9,11 +9,8 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
-import javax.activation.DataHandler;
-
 public class ClipboardCopyAction {
 
-	//鍒涘缓绯荤粺鍓创鐗堝璞�
 	private static Clipboard clip = Toolkit.getDefaultToolkit().getSystemClipboard();
 	public void run() {
 		clip.setContents(new StringSelection("Good Day"), new StringSelection("Happyy"));
@@ -29,7 +26,6 @@ public class ClipboardCopyAction {
 	public static void setClipboardImage(final Image image) {
 		Transferable tf = new Transferable(){
 
-			@Override
 			public Object getTransferData(DataFlavor flavor)
 					throws UnsupportedFlavorException, IOException {
 				if(isDataFlavorSupported(flavor))
@@ -37,12 +33,10 @@ public class ClipboardCopyAction {
 				throw new UnsupportedFlavorException(flavor);
 			}
 
-			@Override
 			public DataFlavor[] getTransferDataFlavors() {
 				return new DataFlavor[]{DataFlavor.imageFlavor};
 			}
 
-			@Override
 			public boolean isDataFlavorSupported(DataFlavor flavor) {
 				return DataFlavor.imageFlavor.equals(flavor);
 			}

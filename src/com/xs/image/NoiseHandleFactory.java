@@ -15,7 +15,6 @@ public class NoiseHandleFactory implements BaseNoiseHandleFactory {
         return noiseHandlerFactory;
     }
 
-    @Override
     public BaseNoiseHandle getNoiseHandle(String noiseType) {
         // TODO Auto-generated method stub
         try {

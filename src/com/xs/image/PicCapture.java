@@ -9,7 +9,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;  
 import java.io.FileNotFoundException;
 import java.io.IOException;
+
 import javax.imageio.ImageIO;
+
 import java.util.Comparator;
 import java.util.Map;
 import java.util.HashMap;
@@ -141,7 +143,6 @@ public class PicCapture {
         }
 
         Collections.sort(scoreList, new Comparator<Score>() {
-            @Override
             public int compare(Score s1, Score s2) {
                 return s1.value - s2.value;
             }
@@ -193,7 +194,7 @@ public class PicCapture {
 
     public static void loadPattern() throws IOException {
         for (int n = 0; n < 10; n++) {
-            File inputFile = new File("D:\\Workspace\\Ge201401\\char_" + n + "_0.bmp");
+            File inputFile = new File("char_" + n + "_0.bmp");
             BufferedImage charImage = ImageIO.read(inputFile);
             standardImageMap.put(String.valueOf(n), charImage);
         }
@@ -287,7 +288,8 @@ public class PicCapture {
     }
 
     public static void main(String args[]) throws Exception {
-        PicCapture capture = new PicCapture();
+        @SuppressWarnings("unused")
+		PicCapture capture = new PicCapture();
         loadProperty();
 
         int screenWidth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;

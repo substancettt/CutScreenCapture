@@ -3,14 +3,19 @@ import java.io.*;
 import java.util.TreeSet;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.AffineTransform;
 import java.awt.image.*;
+
 import javax.imageio.*;
 import javax.swing.*;
  
 public class SaveImage extends Component implements ActionListener {
  
-    String descs[] = {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	String descs[] = {
     "Original",
         "Convolve : LowPass",
         "Convolve : Sharpen",
@@ -119,7 +124,8 @@ public class SaveImage extends Component implements ActionListener {
  
  
      public void actionPerformed(ActionEvent e) {
-         JComboBox cb = (JComboBox)e.getSource();
+         @SuppressWarnings("rawtypes")
+		JComboBox cb = (JComboBox)e.getSource();
          if (cb.getActionCommand().equals("SetFilter")) {
              setOpIndex(cb.getSelectedIndex());
              repaint();
@@ -155,10 +161,12 @@ public class SaveImage extends Component implements ActionListener {
         });
         SaveImage si = new SaveImage();
         f.add("Center", si);
-        JComboBox choices = new JComboBox(si.getDescriptions());
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+		JComboBox choices = new JComboBox(si.getDescriptions());
         choices.setActionCommand("SetFilter");
         choices.addActionListener(si);
-        JComboBox formats = new JComboBox(si.getFormats());
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+		JComboBox formats = new JComboBox(si.getFormats());
         formats.setActionCommand("Formats");
         formats.addActionListener(si);
         JPanel panel = new JPanel();

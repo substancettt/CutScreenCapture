@@ -12,7 +12,6 @@ import java.util.Map;
 import javax.imageio.*;
 
 public class ImageHandle {
-    private int maxValue = 15;
     public static Map<String, BufferedImage> standardImageMap = new HashMap<String, BufferedImage>();
     
     
