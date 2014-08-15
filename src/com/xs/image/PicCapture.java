@@ -55,7 +55,7 @@ public class PicCapture {
 
         try {
             pro = new Properties();
-            FileInputStream inputFile = new FileInputStream("properties");
+            FileInputStream inputFile = new FileInputStream("conf\\properties");
             pro.load(inputFile);
             inputFile.close();
         } catch (FileNotFoundException e) {
@@ -115,7 +115,7 @@ public class PicCapture {
             } else {
                 charImageList.add(charImage);
             }
-            saveImage(charImage, "charImage_" + n + ".bmp");
+            saveImage(charImage, "logs\\charImage_" + n + ".bmp");
         }
 
         return pickedImage;
@@ -194,7 +194,7 @@ public class PicCapture {
 
     public static void loadPattern() throws IOException {
         for (int n = 0; n < 10; n++) {
-            File inputFile = new File("char_" + n + "_0.bmp");
+            File inputFile = new File("conf\\char_" + n + "_0.bmp");
             BufferedImage charImage = ImageIO.read(inputFile);
             standardImageMap.put(String.valueOf(n), charImage);
         }
