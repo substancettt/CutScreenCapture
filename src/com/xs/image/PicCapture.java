@@ -194,7 +194,7 @@ public class PicCapture {
 
     public static void loadPattern() throws IOException {
         for (int n = 0; n < 10; n++) {
-            File inputFile = new File("conf\\char_" + n + "_0.bmp");
+            File inputFile = new File("conf\\char_" + n + ".bmp");
             BufferedImage charImage = ImageIO.read(inputFile);
             standardImageMap.put(String.valueOf(n), charImage);
         }
@@ -302,11 +302,13 @@ public class PicCapture {
         capture(rect);
         loadPattern();
         getPicture();
-        for (int i = 0; i < 6; i++) {
-            System.out.println("The charactar[" + i + "] is " + getChar(i));
+        if (bPrint) {
+	        for (int i = 0; i < 6; i++) {
+	            System.out.println("The charactar[" + i + "] is " + getChar(i));
+	        }
+	        long endTime = System.currentTimeMillis();
+	        System.out.println(endTime - startTime);
         }
-        long endTime = System.currentTimeMillis();
-        System.out.println(endTime - startTime);
         if (bCopy) {
             ClipboardCopyAction.setClipboardImage(getPicture());
         }
