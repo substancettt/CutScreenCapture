@@ -1,8 +1,9 @@
-// 1190, 615, 120, 30
-// 1190, 615, 120, 30 1600*900
+// 1190, 615, 22, 3 1920*1080
+// 992, 513, 19, 3 1600*900
+// 1033, 523, 12, 6 1900*1600
 // 5, 149, 120, 40
-x_offset = 1033
-y_offset = 523
+x_offset = 1190
+y_offset = 615
 wight = 120
 heigth = 30
 threshold = 230
@@ -11,11 +12,11 @@ white = 16777215
 charWidth = 11
 charHeight = 30
 charNum = 6
-offset_x = 12
+offset_x = 22
 offset_y = 0
-gap_x = 6
+gap_x = 3
 patternNum = 10
 bNoiseWipe = true
-bSaveResult = false
-bPrint = false
-bCopy = false
+bSaveResult = true
+bPrint = true
+bCopy = true

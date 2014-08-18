@@ -178,7 +178,7 @@ public class PicCapture {
 
     public static void saveImage(BufferedImage image, String imagePath)
             throws IOException {
-        if (bSaveResult) {
+        if (!bSaveResult) {
             return;
         }
         File file = new File(imagePath);
