@@ -2,21 +2,23 @@
 // 992, 513, 19, 3 1600*900
 // 1033, 523, 12, 6 1900*1600
 // 5, 149, 120, 40
-x_offset = 1190
-y_offset = 615
-wight = 120
-heigth = 30
+x_offset = 900
+y_offset = 500
+wight = 500
+heigth = 300
+target_wight = 113
+target_heigth = 34
 threshold = 230
 black = 0
 white = 16777215
-charWidth = 11
+charWidth = 12
 charHeight = 30
 charNum = 6
-offset_x = 22
+offset_x = 16
 offset_y = 0
-gap_x = 3
+gap_x = 2
 patternNum = 10
-bNoiseWipe = true
+bNoiseWipe = false
 bSaveResult = true
 bPrint = true
 bCopy = true

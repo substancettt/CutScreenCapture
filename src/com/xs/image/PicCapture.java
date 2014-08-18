@@ -22,6 +22,8 @@ import java.io.FileInputStream;
 public class PicCapture {
     private static Robot robot;
     private static BufferedImage pickedImage;
+    private static BufferedImage targetImage;
+    private static BufferedImage handledImage;
     private static ArrayList<BufferedImage> charImageList = new ArrayList<BufferedImage>();
     public static Map<String, BufferedImage> standardImageMap = null;
     private static int x_offset = 1190;
@@ -38,6 +40,10 @@ public class PicCapture {
     private static int offset_y = 0;
     private static int gap_x = 3;
     private static int patternNum = 10;
+    private static int target_wight = 112;
+    private static int target_heigth = 33;
+    private static int target_x = 0;
+    private static int target_y = 0;
     private static Boolean bNoiseWipe = true;
     private static Boolean bSaveResult = false;
     private static Boolean bPrint = false;
@@ -74,10 +80,6 @@ public class PicCapture {
         return pickedImage;
     }
 
-    public static BufferedImage getPickedImage() {
-        return pickedImage;
-    }
-
     public static BufferedImage getCharImage(int index) {
         return (BufferedImage)charImageList.get(index);
     }
@@ -92,15 +94,15 @@ public class PicCapture {
 
         for (int n = 0; n < charNum; n++) {
             BufferedImage charImage = new BufferedImage(charWidth, charHeight,
-                    pickedImage.getType());
+                    handledImage.getType());
             for (int i = charImage.getMinX(); i < charWidth; i++) {
                 for (int j = charImage.getMinY(); j < charHeight; j++) {
-                    data = pickedImage.getRaster().getDataElements(
+                    data = handledImage.getRaster().getDataElements(
                             i + offset_x + (gap_x + charWidth) * n,
                             j + offset_y, null);
-                    red = pickedImage.getColorModel().getRed(data);
-                    blue = pickedImage.getColorModel().getBlue(data);
-                    green = pickedImage.getColorModel().getGreen(data);
+                    red = handledImage.getColorModel().getRed(data);
+                    blue = handledImage.getColorModel().getBlue(data);
+                    green = handledImage.getColorModel().getGreen(data);
                     rgb = (red * 3 + green * 6 + blue * 1) / 10;
                     if (rgb > threshold) {
                         rgb = white;
@@ -118,7 +120,7 @@ public class PicCapture {
             saveImage(charImage, "logs\\charImage_" + n + ".bmp");
         }
 
-        return pickedImage;
+        return handledImage;
     }
 
     public static int getChar(int index)
@@ -200,6 +202,81 @@ public class PicCapture {
         }
     }
 
+    public static void locateTarget() throws IOException {
+        int green = 0;
+        int red = 0;
+        int blue = 0;
+        int value = 0;
+        int binaryImageInfo[][];
+        Boolean bFound = false;
+        Object data = null;
+
+        targetImage = new BufferedImage(target_wight, target_heigth, pickedImage.getType());
+        binaryImageInfo = new int[wight][heigth];
+        for (int i = 0; i < wight; i++) {
+            for (int j = 0; j < heigth; j++) {
+                data = pickedImage.getRaster().getDataElements(i, j, null);
+                red = pickedImage.getColorModel().getRed(data);
+                blue = pickedImage.getColorModel().getBlue(data);
+                green = pickedImage.getColorModel().getGreen(data);
+                value = (red * 3 + green * 6 + blue * 1) / 10;
+                if (value > threshold) {
+                    value = white;
+                } else {
+                    value = black;
+                }
+                binaryImageInfo[i][j] = value;
+            }
+        }
+
+        for (int j = 0; j < heigth - target_heigth; j++) {
+            for (int i = 0; i < wight - target_wight; i++) {
+                bFound = true;
+                for (int n = 0; n < target_wight; n++ ) {
+                    if (binaryImageInfo[i + n][j] != black) {
+                        bFound = false;
+                        break;
+                    }
+                }
+
+                for (int n = 0; n < target_heigth; n++ ) {
+                    if (binaryImageInfo[i][j + n] != black) {
+                        bFound = false;
+                        break;
+                    }
+                }
+
+                if (bFound) {
+                    target_x = i;
+                    target_y = j;
+
+                    for (int x = targetImage.getMinX(); x < target_wight; x++) {
+                        for (int y = targetImage.getMinY(); y < target_heigth; y++) {
+                            data = pickedImage.getRaster().getDataElements(target_x + x, target_y + y, null);
+                            red = pickedImage.getColorModel().getRed(data);
+                            blue = pickedImage.getColorModel().getBlue(data);
+                            green = pickedImage.getColorModel().getGreen(data);
+                            value = (red * 3 + green * 6 + blue * 1) / 10;
+                            if (value > threshold) {
+                                value = white;
+                            } else {
+                                value = black;
+                            }
+                            targetImage.setRGB(x, y, value);
+                        }
+                    }
+                    if (bNoiseWipe) {
+                        handledImage = handlePic(targetImage);
+                    } else {
+                        handledImage = targetImage;
+                    }
+                    saveImage(handledImage, "logs\\handledImage.bmp");
+                    return;
+                }
+            }
+        }
+    }
+
     public static int getDiffValues(BufferedImage inputBi, BufferedImage standardBi)
             throws IOException {
         int diffValues = 0;
@@ -271,6 +348,8 @@ public class PicCapture {
         y_offset = Integer.valueOf(getProperty("y_offset"));
         wight = Integer.valueOf(getProperty("wight"));
         heigth = Integer.valueOf(getProperty("heigth"));
+        target_wight = Integer.valueOf(getProperty("target_wight"));
+        target_heigth = Integer.valueOf(getProperty("target_heigth"));
         threshold = Integer.valueOf(getProperty("threshold"));
         black = Integer.valueOf(getProperty("black"));
         white = Integer.valueOf(getProperty("white"));
@@ -300,6 +379,8 @@ public class PicCapture {
         Rectangle rect = new Rectangle(x_offset, y_offset, wight, heigth);
         long startTime = System.currentTimeMillis();
         capture(rect);
+        locateTarget();
+
         loadPattern();
         getPicture();
         if (bPrint) {
