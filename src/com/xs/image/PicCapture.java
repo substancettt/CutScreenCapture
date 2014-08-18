@@ -21,9 +21,9 @@ import java.io.FileInputStream;
 
 public class PicCapture {
     private static Robot robot;
-    private static BufferedImage pickedImage;
-    private static BufferedImage targetImage;
-    private static BufferedImage handledImage;
+    private static BufferedImage pickedImage = null;
+    private static BufferedImage targetImage = null;
+    private static BufferedImage handledImage = null;
     private static ArrayList<BufferedImage> charImageList = new ArrayList<BufferedImage>();
     public static Map<String, BufferedImage> standardImageMap = null;
     private static int x_offset = 1190;
@@ -47,8 +47,7 @@ public class PicCapture {
     private static Boolean bNoiseWipe = true;
     private static Boolean bSaveResult = false;
     private static Boolean bPrint = false;
-    private static Boolean bCopy = false;
-    private static Properties pro;
+    private static Properties pro = null;
 
     private PicCapture() {
         standardImageMap = new HashMap<String, BufferedImage>();
@@ -65,10 +64,10 @@ public class PicCapture {
             pro.load(inputFile);
             inputFile.close();
         } catch (FileNotFoundException e) {
-            System.out.println("The properties file not found!");
+            LogMsg("The properties file not found!");
             e.printStackTrace();
         } catch (IOException e) {
-            System.out.println("Fail to load the properties file!");
+            LogMsg("Fail to load the properties file!");
             e.printStackTrace();
         }
     }
@@ -91,6 +90,11 @@ public class PicCapture {
         int blue = 0;
         int rgb;
         Object data = null;
+
+        if (handledImage == null) {
+            LogMsg("No target found! Exiting...");
+            return null;
+        }
 
         for (int n = 0; n < charNum; n++) {
             BufferedImage charImage = new BufferedImage(charWidth, charHeight,
@@ -138,7 +142,7 @@ public class PicCapture {
                 score.id = (char)n;
                 score.value = getDiffValues(charImage, standardImageMap.get(String.valueOf(n)));
                 if (bPrint) {
-                    System.out.println("Pattern[" + n + "] score is " + score.value);
+                    LogMsg("Pattern[" + n + "] score is " + score.value);
                 }
                 scoreList.add(score);
             }
@@ -336,7 +340,7 @@ public class PicCapture {
             throws IOException {
         String value = pro.getProperty(key);
         if (bPrint) {
-            System.out.println("The value of variable " + key + " is " + value);
+            LogMsg("The value of variable " + key + " is " + value);
         }
 
         return value;
@@ -363,7 +367,12 @@ public class PicCapture {
         bNoiseWipe = Boolean.valueOf(getProperty("bNoiseWipe"));
         bSaveResult = Boolean.valueOf(getProperty("bSaveResult"));
         bPrint = Boolean.valueOf(getProperty("bPrint"));
-        bCopy = Boolean.valueOf(getProperty("bCopy"));
+    }
+
+    private static void LogMsg(String msg) {
+        if (bPrint) {
+            System.out.println(msg);
+        }
     }
 
     public static void main(String args[]) throws Exception {
@@ -374,7 +383,7 @@ public class PicCapture {
         int screenWidth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
         int screenHeigth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;
         
-        System.out.println("The screen size is " + screenWidth + " * " + screenHeigth);
+        LogMsg("The screen size is " + screenWidth + " * " + screenHeigth);
 
         Rectangle rect = new Rectangle(x_offset, y_offset, wight, heigth);
         long startTime = System.currentTimeMillis();
@@ -382,16 +391,12 @@ public class PicCapture {
         locateTarget();
 
         loadPattern();
-        getPicture();
-        if (bPrint) {
+        if (getPicture() != null) {
 	        for (int i = 0; i < 6; i++) {
-	            System.out.println("The charactar[" + i + "] is " + getChar(i));
+	            LogMsg("The charactar[" + i + "] is " + getChar(i));
 	        }
-	        long endTime = System.currentTimeMillis();
-	        System.out.println(endTime - startTime);
         }
-        if (bCopy) {
-            ClipboardCopyAction.setClipboardImage(getPicture());
-        }
+        long consumedTime = System.currentTimeMillis() - startTime;
+        LogMsg("Cconsumed Time is " + consumedTime);
     }
 }
