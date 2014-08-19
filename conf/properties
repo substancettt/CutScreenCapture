@@ -2,9 +2,9 @@
 // 992, 513, 19, 3 1600*900
 // 1033, 523, 12, 6 1900*1600
 // 5, 149, 120, 40
-x_offset = 900
-y_offset = 500
-wight = 500
+x_offset = -1
+y_offset = -1
+wight = 450
 heigth = 300
 target_wight = 113
 target_heigth = 34
@@ -22,3 +22,4 @@ bNoiseWipe = false
 bSaveResult = true
 bPrint = true
 bCopy = true
+bAdust = true

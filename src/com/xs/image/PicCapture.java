@@ -47,6 +47,7 @@ public class PicCapture {
     private static Boolean bNoiseWipe = true;
     private static Boolean bSaveResult = false;
     private static Boolean bPrint = false;
+    private static Boolean bAdust = false;
     private static Properties pro = null;
 
     private PicCapture() {
@@ -184,12 +185,11 @@ public class PicCapture {
 
     public static void saveImage(BufferedImage image, String imagePath)
             throws IOException {
-        if (!bSaveResult) {
-            return;
+        if (bSaveResult) {
+            File file = new File(imagePath);
+            String suffix = imagePath.substring(imagePath.lastIndexOf('.') + 1);
+            ImageIO.write(image, suffix, file);
         }
-        File file = new File(imagePath);
-        String suffix = imagePath.substring(imagePath.lastIndexOf('.') + 1);
-        ImageIO.write(image, suffix, file);
     }
 
     public static BufferedImage loadImage(String imagePath)
@@ -237,14 +237,14 @@ public class PicCapture {
             for (int i = 0; i < wight - target_wight; i++) {
                 bFound = true;
                 for (int n = 0; n < target_wight; n++ ) {
-                    if (binaryImageInfo[i + n][j] != black) {
+                    if ((binaryImageInfo[i + n][j] != black)) {
                         bFound = false;
                         break;
                     }
                 }
 
                 for (int n = 0; n < target_heigth; n++ ) {
-                    if (binaryImageInfo[i][j + n] != black) {
+                    if ((binaryImageInfo[i][j + n] != black)) {
                         bFound = false;
                         break;
                     }
@@ -275,6 +275,7 @@ public class PicCapture {
                         handledImage = targetImage;
                     }
                     saveImage(handledImage, "logs\\handledImage.bmp");
+                    saveImage(pickedImage, "logs\\pickedImage.bmp");
                     return;
                 }
             }
@@ -346,7 +347,7 @@ public class PicCapture {
         return value;
     }
 
-    private static void loadProperty()
+    private static void loadProperties()
             throws IOException {
         x_offset = Integer.valueOf(getProperty("x_offset"));
         y_offset = Integer.valueOf(getProperty("y_offset"));
@@ -367,6 +368,23 @@ public class PicCapture {
         bNoiseWipe = Boolean.valueOf(getProperty("bNoiseWipe"));
         bSaveResult = Boolean.valueOf(getProperty("bSaveResult"));
         bPrint = Boolean.valueOf(getProperty("bPrint"));
+        bAdust = Boolean.valueOf(getProperty("bAdust"));
+    }
+
+    private static void adjustProperties() {
+        if (bAdust) {
+            int screenWidth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
+            int screenHeigth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;
+            
+            LogMsg("The screen size is " + screenWidth + " * " + screenHeigth);
+            if (x_offset < 0) {
+                x_offset = screenWidth / 2;
+            }
+
+            if (y_offset < 0) {
+                y_offset = screenHeigth / 2;
+            }
+        }
     }
 
     private static void LogMsg(String msg) {
@@ -378,12 +396,8 @@ public class PicCapture {
     public static void main(String args[]) throws Exception {
         @SuppressWarnings("unused")
 		PicCapture capture = new PicCapture();
-        loadProperty();
-
-        int screenWidth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
-        int screenHeigth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;
-        
-        LogMsg("The screen size is " + screenWidth + " * " + screenHeigth);
+        loadProperties();
+        adjustProperties();
 
         Rectangle rect = new Rectangle(x_offset, y_offset, wight, heigth);
         long startTime = System.currentTimeMillis();
@@ -391,12 +405,13 @@ public class PicCapture {
         locateTarget();
 
         loadPattern();
+
         if (getPicture() != null) {
 	        for (int i = 0; i < 6; i++) {
 	            LogMsg("The charactar[" + i + "] is " + getChar(i));
 	        }
         }
         long consumedTime = System.currentTimeMillis() - startTime;
-        LogMsg("Cconsumed Time is " + consumedTime);
+        LogMsg("Consumed Time is " + consumedTime);
     }
 }
