@@ -160,7 +160,8 @@ public class PicCapture {
 
     public static BufferedImage handlePic(BufferedImage iputImage) throws IOException {
         BufferedImage outImage;
-        String noistType = getNoiseType(pickedImage);
+        //unused
+        /*String noistType = getNoiseType(pickedImage);
         if("CrossLine".equals(noistType)){
             List<Integer> noiseList1 = NoiseHandleFactory.getBaseNoiseHandlerFactory()
             .getNoiseHandle(NoisePattern.TRANSVERSE.value).getNoiseLines(iputImage);
@@ -178,8 +179,9 @@ public class PicCapture {
         }else{
             outImage = NoiseHandleFactory.getBaseNoiseHandlerFactory()
                 .getNoiseHandle(getNoiseType(iputImage)).removeNoise(iputImage);
-        }
+        }*/
         
+        outImage = NoiseHandleFactory.getBaseNoiseHandlerFactory().getNoiseHandle("undefined").removeNoise(iputImage);
         return outImage;
     }
 
