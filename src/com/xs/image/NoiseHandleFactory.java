@@ -18,7 +18,12 @@ public class NoiseHandleFactory implements BaseNoiseHandleFactory {
     public BaseNoiseHandle getNoiseHandle(String noiseType) {
         // TODO Auto-generated method stub
         try {
-            Class<?> clazz = Class.forName("com.xs.image."+noiseType+"PatternHandle");
+            Class<?> clazz;
+            if(!noiseType.equals("undefined")){
+                clazz = Class.forName("com.xs.image."+noiseType+"PatternHandle");
+            }else{
+                clazz = Class.forName("com.xs.image.NoiseHandle");
+            }
             return (BaseNoiseHandle) clazz.newInstance();
         } catch (ClassNotFoundException e) {
             // TODO Auto-generated catch block
@@ -36,7 +41,7 @@ public class NoiseHandleFactory implements BaseNoiseHandleFactory {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } 
-        return null;
+        return null; 
     }
 
 }
