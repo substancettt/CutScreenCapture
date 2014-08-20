@@ -8,6 +8,7 @@ public class DiagonalPatternHandle implements BaseNoiseHandle {
 
     public BufferedImage removeNoise(BufferedImage bi) {
         // TODO Auto-generated method stub
+    	bi = prevRemove(bi);
             for (int h = 0; h < bi.getHeight(); ++h) {
                 for (int w = 0; w < bi.getWidth(); ++w) {
                     
@@ -101,5 +102,15 @@ public class DiagonalPatternHandle implements BaseNoiseHandle {
         
     }
 
-
+    private BufferedImage prevRemove(BufferedImage  bi){
+   	 for(int w = 0; w < bi.getWidth(); ++w){
+        	bi.setRGB(w, 0, Color.WHITE.value);
+        	bi.setRGB(w, bi.getHeight() - 1, Color.WHITE.value);
+        }
+        for(int h = 0; h < bi.getHeight(); ++h){
+        	bi.setRGB(0, h, Color.WHITE.value);
+        	bi.setRGB(bi.getWidth() - 1, h, Color.WHITE.value);
+        }
+        return bi;
+   }
 }

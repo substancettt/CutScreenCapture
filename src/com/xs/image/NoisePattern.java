@@ -1,10 +1,10 @@
 package com.xs.image;
 
 public enum NoisePattern {
-    TRANSVERSE ("TransverseLine"),
-    VERTICAL ("VerticalLine"),
-    CROSS ("CrossLine"),
-    DIAGONAL ("Diagonal");
+    TRANSVERSE ("TransverseLinePattern"),
+    VERTICAL ("VerticalLinePattern"),
+    CROSS ("CrossLinePattern"),
+    DIAGONAL ("DiagonalPattern");
     
     public String value;
     private NoisePattern(String value){

@@ -297,23 +297,37 @@ public class PicCapture {
     public static BufferedImage handlePic(BufferedImage iputImage) throws IOException {
         BufferedImage outImage;
         String noistType = getNoiseType(pickedImage);
-        if("CrossLine".equals(noistType)){
+        if("CrossLinePattern".equals(noistType)){
             List<Integer> noiseList1 = NoiseHandleFactory.getBaseNoiseHandlerFactory()
             .getNoiseHandle(NoisePattern.TRANSVERSE.value).getNoiseLines(iputImage);
-            BufferedImage firstResBi = NoiseHandleFactory.getBaseNoiseHandlerFactory()
-                    .getNoiseHandle(NoisePattern.TRANSVERSE.value).removeNoise(iputImage);
+
             List<Integer> noiseList2 = NoiseHandleFactory.getBaseNoiseHandlerFactory()
-            .getNoiseHandle(NoisePattern.VERTICAL.value).getNoiseLines(firstResBi);
-            BufferedImage secResBi =  NoiseHandleFactory.getBaseNoiseHandlerFactory()
-                    .getNoiseHandle(NoisePattern.VERTICAL.value).removeNoise(firstResBi);
-            BaseNoiseHandle bn = NoiseHandleFactory.getBaseNoiseHandlerFactory()
-                    .getNoiseHandle(NoisePattern.CROSS.value);
-            bn.setTransverseNoiseList(noiseList1);
-            bn.setVerticalNoiseList(noiseList2);
-            outImage = bn.removeNoise(secResBi);
-        }else{
-            outImage = NoiseHandleFactory.getBaseNoiseHandlerFactory()
-                .getNoiseHandle(getNoiseType(iputImage)).removeNoise(iputImage);
+            .getNoiseHandle(NoisePattern.VERTICAL.value).getNoiseLines(iputImage);
+
+            
+            BaseNoiseHandle unDefBn = NoiseHandleFactory.getBaseNoiseHandlerFactory().getNoiseHandle("undefined");
+            unDefBn.setTransverseNoiseList(noiseList1);
+            unDefBn.setVerticalNoiseList(noiseList2);
+            outImage = unDefBn.removeNoise(iputImage);
+            
+            System.out.println("CrossLine");
+        }else{            
+            if("TransverseLinePattern".equals(noistType)){
+            	BaseNoiseHandle unDefBn = NoiseHandleFactory.getBaseNoiseHandlerFactory().getNoiseHandle("undefined");
+            	List<Integer> noiseList = NoiseHandleFactory.getBaseNoiseHandlerFactory()
+                        .getNoiseHandle(NoisePattern.TRANSVERSE.value).getNoiseLines(iputImage);
+            	unDefBn.setTransverseNoiseList(noiseList);
+            	outImage = unDefBn.removeNoise(iputImage);
+            }else if("VerticalLinePattern".equals(noistType)){
+            	BaseNoiseHandle unDefBn = NoiseHandleFactory.getBaseNoiseHandlerFactory().getNoiseHandle("undefined");
+            	List<Integer> noiseList = NoiseHandleFactory.getBaseNoiseHandlerFactory()
+                        .getNoiseHandle(NoisePattern.VERTICAL.value).getNoiseLines(iputImage);
+            	unDefBn.setVerticalNoiseList(noiseList);
+            	outImage = unDefBn.removeNoise(iputImage);
+            }else{
+            	outImage = NoiseHandleFactory.getBaseNoiseHandlerFactory().getNoiseHandle(NoisePattern.DIAGONAL.value).removeNoise(iputImage);
+            }
+           
         }
         
         return outImage;

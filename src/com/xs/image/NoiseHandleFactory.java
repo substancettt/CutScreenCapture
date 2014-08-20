@@ -20,7 +20,7 @@ public class NoiseHandleFactory implements BaseNoiseHandleFactory {
         try {
             Class<?> clazz;
             if(!noiseType.equals("undefined")){
-                clazz = Class.forName("com.xs.image."+noiseType+"PatternHandle");
+                clazz = Class.forName("com.xs.image."+noiseType+"Handle");
             }else{
                 clazz = Class.forName("com.xs.image.NoiseHandle");
             }

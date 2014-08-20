@@ -7,11 +7,21 @@ import java.util.List;
 import java.util.Map;
 
 public class NoiseHandle implements BaseNoiseHandle {
-
+	private List<Integer> transverseNoiseList = new ArrayList<Integer>();
+	private List<Integer> verticalNoiseList = new ArrayList<Integer>();
     public BufferedImage removeNoise(BufferedImage bi) {
         Map<Integer, List<Integer>> noiseMap = new HashMap<Integer, List<Integer>>();
-        for (int h = 0; h < bi.getHeight(); ++h) {
-            for (int w = 0; w < bi.getWidth(); ++w) {
+        bi = prevRemove(bi);
+        List<Integer> hFullList = new ArrayList<Integer>();
+        for (int h = 0; h < bi.getHeight() ; ++h){
+        	hFullList.add(h);
+        }
+        List<Integer> wFullList = new ArrayList<Integer>();
+        for (int w = 0; w < bi.getWidth() ; ++w){
+        	wFullList.add(w);
+        }
+        for(int h: (transverseNoiseList.size() == 0?hFullList:transverseNoiseList)){
+            for(int w: (verticalNoiseList.size() == 0?wFullList:verticalNoiseList)){
 
                 if (h != 0 && h != bi.getHeight() - 1 && w != 0
                         && w != bi.getWidth() - 1) {
@@ -297,12 +307,12 @@ public class NoiseHandle implements BaseNoiseHandle {
 
     public void setTransverseNoiseList(List<Integer> transverseNoiseList) {
         // TODO Auto-generated method stub
-
+        this.transverseNoiseList = transverseNoiseList;
     }
 
     public void setVerticalNoiseList(List<Integer> verticalNoiseList) {
         // TODO Auto-generated method stub
-
+        this.verticalNoiseList = verticalNoiseList;
     }
 
     @Override
@@ -310,4 +320,17 @@ public class NoiseHandle implements BaseNoiseHandle {
         // TODO Auto-generated method stub
         return null;
     }
+    
+    private BufferedImage prevRemove(BufferedImage  bi){
+    	 for(int w = 0; w < bi.getWidth(); ++w){
+         	bi.setRGB(w, 0, Color.WHITE.value);
+         	bi.setRGB(w, bi.getHeight() - 1, Color.WHITE.value);
+         }
+         for(int h = 0; h < bi.getHeight(); ++h){
+         	bi.setRGB(0, h, Color.WHITE.value);
+         	bi.setRGB(bi.getWidth() - 1, h, Color.WHITE.value);
+         }
+         return bi;
+    }
+
 }

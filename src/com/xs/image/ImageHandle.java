@@ -21,33 +21,47 @@ public class ImageHandle {
         long startTime = System.currentTimeMillis();
         loadPattern();
         File inputFile = new File(
-                "C:\\Users\\lixu1\\work\\New folder\\charImage_4(1).bmp");
+                "C:\\Users\\lixu1\\workspaceForGit\\CutScreenCapture\\logs\\handledImage.bmp");
         BufferedImage bi = ImageIO.read(inputFile);
         
         BufferedImage outputBi = null;
+        
         String noistType = getNoiseType(bi);
         System.out.println(noistType);
-        if("CrossLine".equals(noistType)){
+        if("CrossLinePattern".equals(noistType)){
             List<Integer> noiseList1 = NoiseHandleFactory.getBaseNoiseHandlerFactory()
             .getNoiseHandle(NoisePattern.TRANSVERSE.value).getNoiseLines(bi);
-            BufferedImage firstResBi = NoiseHandleFactory.getBaseNoiseHandlerFactory()
-                    .getNoiseHandle(NoisePattern.TRANSVERSE.value).removeNoise(bi);
-            List<Integer> noiseList2 = NoiseHandleFactory.getBaseNoiseHandlerFactory()
-            .getNoiseHandle(NoisePattern.VERTICAL.value).getNoiseLines(firstResBi);
-            BufferedImage secResBi =  NoiseHandleFactory.getBaseNoiseHandlerFactory()
-                    .getNoiseHandle(NoisePattern.VERTICAL.value).removeNoise(firstResBi);
-            BaseNoiseHandle bn = NoiseHandleFactory.getBaseNoiseHandlerFactory()
-                    .getNoiseHandle(NoisePattern.CROSS.value);
-            bn.setTransverseNoiseList(noiseList1);
-            bn.setVerticalNoiseList(noiseList2);
-            outputBi = bn.removeNoise(secResBi);
-            System.out.println("CrossLine");
-        }else{
-            outputBi = NoiseHandleFactory.getBaseNoiseHandlerFactory()
-                .getNoiseHandle(noistType).removeNoise(bi);
-            
-        }
 
+            List<Integer> noiseList2 = NoiseHandleFactory.getBaseNoiseHandlerFactory()
+            .getNoiseHandle(NoisePattern.VERTICAL.value).getNoiseLines(bi);
+
+            
+            BaseNoiseHandle unDefBn = NoiseHandleFactory.getBaseNoiseHandlerFactory().getNoiseHandle("undefined");
+            unDefBn.setTransverseNoiseList(noiseList1);
+            unDefBn.setVerticalNoiseList(noiseList2);
+            outputBi = unDefBn.removeNoise(bi);
+            
+            System.out.println("CrossLine");
+        }else{            
+            if("TransverseLinePattern".equals(noistType)){
+            	BaseNoiseHandle unDefBn = NoiseHandleFactory.getBaseNoiseHandlerFactory().getNoiseHandle("undefined");
+            	List<Integer> noiseList = NoiseHandleFactory.getBaseNoiseHandlerFactory()
+                        .getNoiseHandle(NoisePattern.TRANSVERSE.value).getNoiseLines(bi);
+            	unDefBn.setTransverseNoiseList(noiseList);
+            	outputBi = unDefBn.removeNoise(bi);
+            }else if("VerticalLinePattern".equals(noistType)){
+            	BaseNoiseHandle unDefBn = NoiseHandleFactory.getBaseNoiseHandlerFactory().getNoiseHandle("undefined");
+            	List<Integer> noiseList = NoiseHandleFactory.getBaseNoiseHandlerFactory()
+                        .getNoiseHandle(NoisePattern.VERTICAL.value).getNoiseLines(bi);
+            	unDefBn.setVerticalNoiseList(noiseList);
+            	outputBi = unDefBn.removeNoise(bi);
+            }else{
+            	outputBi = NoiseHandleFactory.getBaseNoiseHandlerFactory().getNoiseHandle(NoisePattern.DIAGONAL.value).removeNoise(bi);
+            }
+           
+        }
+        
+//      outputBi = NoiseHandleFactory.getBaseNoiseHandlerFactory().getNoiseHandle("undefined").removeNoise(bi);
 
        
 //        int diffValues = ImageHandle.getDiffValues(outputBi, standardImageMap.get("8"));
@@ -59,7 +73,7 @@ public class ImageHandle {
         System.out.println(endTime - startTime);
 
         ImageIO.write(outputBi, "bmp", new File(
-                "C:\\Users\\lixu1\\work\\New folder\\myImage.bmp"));
+                "C:\\Users\\lixu1\\workspaceForGit\\CutScreenCapture\\logs\\myImage.bmp"));
      
 
     }
@@ -108,13 +122,13 @@ public class ImageHandle {
         }
         System.out.println(transverseNoiseList);
         System.out.println(verticalNoiseList);
-        if(transverseNoiseList.size()>1 && verticalNoiseList.size()>0){
+        if(transverseNoiseList.size()>2 && verticalNoiseList.size()>2){
             return NoisePattern.CROSS.value;
         }
-        if(transverseNoiseList.size()>1){
+        if(transverseNoiseList.size()>2){
             return NoisePattern.TRANSVERSE.value;
         }
-        if(verticalNoiseList.size()>0){
+        if(verticalNoiseList.size()>2){
             return NoisePattern.VERTICAL.value;
         }
         return NoisePattern.DIAGONAL.value;
