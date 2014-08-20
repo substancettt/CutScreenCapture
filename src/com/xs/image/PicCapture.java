@@ -25,12 +25,14 @@ public class PicCapture {
     private static BufferedImage targetImage = null;
     private static BufferedImage handledImage = null;
     private static ArrayList<BufferedImage> charImageList = new ArrayList<BufferedImage>();
-    public static Map<String, BufferedImage> standardImageMap = null;
+    private static Map<String, BufferedImage> standardImageMap = null;
+    private static List <Integer> x_offsets = new ArrayList<Integer>();
     private static int x_offset = 1190;
     private static int y_offset = 615;
     private static int wight = 120;
     private static int heigth = 30;
-    private static int threshold = 200;
+    private static int threshold1 = 200;
+    private static int threshold2 = 22;
     private static int black = 0;
     private static int white = 16777215;
     private static int charWidth = 11;
@@ -38,12 +40,13 @@ public class PicCapture {
     private static int charNum = 6;
     private static int offset_x = 19;
     private static int offset_y = 0;
-    private static int gap_x = 3;
+    private static int gap_x = charWidth;
     private static int patternNum = 10;
     private static int target_wight = 112;
     private static int target_heigth = 33;
     private static int target_x = 0;
     private static int target_y = 0;
+    private static int binaryImageInfo[][];
     private static Boolean bNoiseWipe = true;
     private static Boolean bSaveResult = false;
     private static Boolean bPrint = false;
@@ -77,6 +80,38 @@ public class PicCapture {
             throws IOException {
         pickedImage = robot.createScreenCapture(rect);
         
+        saveImage(pickedImage, "logs\\pickedImage1.bmp");
+        return pickedImage;
+    }
+
+    public static BufferedImage binarilizeIamge()
+            throws IOException {
+        int green = 0;
+        int red = 0;
+        int blue = 0;
+        int value = 0;
+        Object data = null;
+
+        binaryImageInfo = new int[wight][heigth];
+        for (int i = 0; i < wight; i++) {
+            for (int j = 0; j < heigth; j++) {
+                data = pickedImage.getRaster().getDataElements(i, j, null);
+                red = pickedImage.getColorModel().getRed(data);
+                blue = pickedImage.getColorModel().getBlue(data);
+                green = pickedImage.getColorModel().getGreen(data);
+                value = (red * 3 + green * 6 + blue * 1) / 10;
+                if (value > threshold1) {
+                    value = white;
+                    binaryImageInfo[i][j] = 1;
+                } else {
+                    value = black;
+                    binaryImageInfo[i][j] = 0;
+                }
+                pickedImage.setRGB(i, j, value);
+            }
+        }
+
+        saveImage(pickedImage, "logs\\pickedImage2.bmp");
         return pickedImage;
     }
 
@@ -90,26 +125,43 @@ public class PicCapture {
         int red = 0;
         int blue = 0;
         int rgb;
+        int xl = 0;
+        int xr = 0;
+        int value_l = 0;
+        int value_r = 0;
         Object data = null;
 
         if (handledImage == null) {
             LogMsg("No target found! Exiting...");
             return null;
         }
-
-        for (int n = 0; n < charNum; n++) {
+        for (int n = 0; n < x_offsets.size() - 1; n++) {
+            xl = x_offsets.get(n);
+            xr = x_offsets.get(n + 1);
+            value_l = 0;
+            value_r = 0;
+            while (xr - xl >= charWidth) {
+                for (int j = 0; j < charHeight; j++) {
+                    value_l += binaryImageInfo[xl + x_offset][j + y_offset];
+                    value_r += binaryImageInfo[xr + x_offset][j + y_offset];
+                }
+                if (value_l > value_r) {
+                    xl--;
+                } else {
+                    xr--;
+                }
+            }
+            
             BufferedImage charImage = new BufferedImage(charWidth, charHeight,
                     handledImage.getType());
-            for (int i = charImage.getMinX(); i < charWidth; i++) {
-                for (int j = charImage.getMinY(); j < charHeight; j++) {
-                    data = handledImage.getRaster().getDataElements(
-                            i + offset_x + (gap_x + charWidth) * n,
-                            j + offset_y, null);
+            for (int i = 0; i < charWidth; i++) {
+                for (int j = 0; j < charHeight; j++) {
+                    data = handledImage.getRaster().getDataElements(xl + i, j, null);
                     red = handledImage.getColorModel().getRed(data);
                     blue = handledImage.getColorModel().getBlue(data);
                     green = handledImage.getColorModel().getGreen(data);
                     rgb = (red * 3 + green * 6 + blue * 1) / 10;
-                    if (rgb > threshold) {
+                    if (rgb > threshold1) {
                         rgb = white;
                     } else {
                         rgb = black;
@@ -156,6 +208,79 @@ public class PicCapture {
         });
 
         return scoreList.get(0).id;
+    }
+
+    public static void getOffsets() {
+        int temp;
+        int value = 0;
+        class Score{
+            int id;
+            int value; 
+        }
+        List <Score> scoreList = new ArrayList<Score>();
+
+        for (int i = 1; i < target_wight; i++) {
+            value = 0;
+            for (int j = 0; j < target_heigth; j++) {
+                value += binaryImageInfo[i + x_offset][j + y_offset];
+            }
+            if ((i > offset_x) && (i < target_wight - offset_x) && value > 22 ) {
+                Score score = new Score();
+                score.id = i;
+                score.value = value; 
+                scoreList.add(score);
+            }
+        }
+
+        Collections.sort(scoreList, new Comparator<Score>() {
+            public int compare(Score s1, Score s2) {
+                return s1.value - s2.value;
+            }
+        });
+
+        for (int n = scoreList.size() - 1; n >= 0; n--) {
+            if (((n - 1) >= 0)
+                    && (scoreList.get(n).id == (scoreList.get(n - 1).id + 1))
+                    && (scoreList.get(n).value == scoreList.get(n - 1).value)) {
+                continue;
+            } else {
+                Boolean bInsert = true;
+                
+                for (int x = 0; x < x_offsets.size(); x++) {
+                    if (((x_offsets.get(x) >= scoreList.get(n).id)
+                                && (x_offsets.get(x) - scoreList.get(n).id < charWidth ))
+                            || ((x_offsets.get(x) < scoreList.get(n).id)
+                                    && (scoreList.get(n).id - x_offsets.get(x) < charWidth))) {
+                            bInsert = false;
+                            break;
+                        }
+                }
+
+                if (bInsert) {
+                    x_offsets.add(scoreList.get(n).id);
+                    LogMsg("X is " + scoreList.get(n).id + " Value is " + scoreList.get(n).value + " Size is " + x_offsets.size());
+                    if (x_offsets.size() == charNum) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < x_offsets.size(); i++) {
+            for(int j = i; j > 0; j--){
+                if (x_offsets.get(j) < x_offsets.get(j - 1)){
+                    temp = x_offsets.get(j - 1);
+                    x_offsets.set(j - 1, x_offsets.get(j));
+                    x_offsets.set(j, temp);
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        for (int n = 0; n < x_offsets.size(); n++) {
+            LogMsg("X is " + x_offsets.get(n) + " Size is " + x_offsets.size());
+        }
     }
 
     public static BufferedImage handlePic(BufferedImage iputImage) throws IOException {
@@ -211,40 +336,22 @@ public class PicCapture {
         int red = 0;
         int blue = 0;
         int value = 0;
-        int binaryImageInfo[][];
         Boolean bFound = false;
         Object data = null;
 
         targetImage = new BufferedImage(target_wight, target_heigth, pickedImage.getType());
-        binaryImageInfo = new int[wight][heigth];
-        for (int i = 0; i < wight; i++) {
-            for (int j = 0; j < heigth; j++) {
-                data = pickedImage.getRaster().getDataElements(i, j, null);
-                red = pickedImage.getColorModel().getRed(data);
-                blue = pickedImage.getColorModel().getBlue(data);
-                green = pickedImage.getColorModel().getGreen(data);
-                value = (red * 3 + green * 6 + blue * 1) / 10;
-                if (value > threshold) {
-                    value = white;
-                } else {
-                    value = black;
-                }
-                binaryImageInfo[i][j] = value;
-            }
-        }
-
         for (int j = 0; j < heigth - target_heigth; j++) {
             for (int i = 0; i < wight - target_wight; i++) {
                 bFound = true;
                 for (int n = 0; n < target_wight; n++ ) {
-                    if ((binaryImageInfo[i + n][j] != black)) {
+                    if ((binaryImageInfo[i + n][j] != 0)) {
                         bFound = false;
                         break;
                     }
                 }
 
                 for (int n = 0; n < target_heigth; n++ ) {
-                    if ((binaryImageInfo[i][j + n] != black)) {
+                    if ((binaryImageInfo[i][j + n] != 0)) {
                         bFound = false;
                         break;
                     }
@@ -261,7 +368,7 @@ public class PicCapture {
                             blue = pickedImage.getColorModel().getBlue(data);
                             green = pickedImage.getColorModel().getGreen(data);
                             value = (red * 3 + green * 6 + blue * 1) / 10;
-                            if (value > threshold) {
+                            if (value > threshold1) {
                                 value = white;
                             } else {
                                 value = black;
@@ -274,8 +381,10 @@ public class PicCapture {
                     } else {
                         handledImage = targetImage;
                     }
+                    x_offset = i;
+                    y_offset = j;
                     saveImage(handledImage, "logs\\handledImage.bmp");
-                    saveImage(pickedImage, "logs\\pickedImage.bmp");
+                    LogMsg("X is " + x_offset + " Y is " + y_offset);
                     return;
                 }
             }
@@ -355,7 +464,8 @@ public class PicCapture {
         heigth = Integer.valueOf(getProperty("heigth"));
         target_wight = Integer.valueOf(getProperty("target_wight"));
         target_heigth = Integer.valueOf(getProperty("target_heigth"));
-        threshold = Integer.valueOf(getProperty("threshold"));
+        threshold1 = Integer.valueOf(getProperty("threshold1"));
+        threshold2 = Integer.valueOf(getProperty("threshold2"));
         black = Integer.valueOf(getProperty("black"));
         white = Integer.valueOf(getProperty("white"));
         charWidth = Integer.valueOf(getProperty("charWidth"));
@@ -363,7 +473,6 @@ public class PicCapture {
         charNum = Integer.valueOf(getProperty("charNum"));
         offset_x = Integer.valueOf(getProperty("offset_x"));
         offset_y = Integer.valueOf(getProperty("offset_y"));
-        gap_x = Integer.valueOf(getProperty("gap_x"));
         patternNum = Integer.valueOf(getProperty("patternNum"));
         bNoiseWipe = Boolean.valueOf(getProperty("bNoiseWipe"));
         bSaveResult = Boolean.valueOf(getProperty("bSaveResult"));
@@ -402,13 +511,16 @@ public class PicCapture {
         Rectangle rect = new Rectangle(x_offset, y_offset, wight, heigth);
         long startTime = System.currentTimeMillis();
         capture(rect);
+        binarilizeIamge();
         locateTarget();
+        getOffsets();
 
         loadPattern();
 
         if (getPicture() != null) {
 	        for (int i = 0; i < 6; i++) {
-	            LogMsg("The charactar[" + i + "] is " + getChar(i));
+	            //LogMsg("The charactar[" + i + "] is " + getChar(i));
+	            LogMsg("Hehe");
 	        }
         }
         long consumedTime = System.currentTimeMillis() - startTime;
