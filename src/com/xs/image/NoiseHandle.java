@@ -315,7 +315,6 @@ public class NoiseHandle implements BaseNoiseHandle {
         this.verticalNoiseList = verticalNoiseList;
     }
 
-    @Override
     public List<Integer> getNoiseLines(BufferedImage bi) {
         // TODO Auto-generated method stub
         return null;

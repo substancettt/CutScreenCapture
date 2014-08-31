@@ -124,11 +124,9 @@ public class PicCapture {
         int offset_xl = 0;
         int offset_xr = 0;
         int value_xl = 0;
-        int value_xll = 0;
         int value_xlr = 0;
         int value_xr = 0;
         int value_xrl = 0;
-        int value_xrr = 0;
 
         if (handledImage == null) {
             LogMsg("No target found! Exiting...");
@@ -149,11 +147,9 @@ public class PicCapture {
                 for (int j = 0; j < charHeight; j++) {
 //                    LogMsg("X1 is " + offset_xl + ", X2 is " + offset_xr + ", Y is " + j);
                     value_xl += binaryImageInfo[offset_xl][j];
-                    value_xll += binaryImageInfo[offset_xl - 1][j];
                     value_xlr += binaryImageInfo[offset_xl + 1][j];
                     value_xr += binaryImageInfo[offset_xr][j];
                     value_xrl += binaryImageInfo[offset_xr - 1][j];
-                    value_xrr += binaryImageInfo[offset_xr + 1][j];
                 }
                 if (value_xl >= value_xr) {
                         if ((value_xlr < value_xr) 
